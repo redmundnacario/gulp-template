@@ -1,0 +1,10 @@
+{
+  "name": "gulp-template",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Redmund Nacario",
+  "license": "MIT",
+  "dependencies": {
+    "gulp": "^4.0.2"
+  }
+}
