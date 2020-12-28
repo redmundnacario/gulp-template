@@ -1,14 +1,29 @@
 // const { task } = require('gulp');
-const gulp = require("gulp");
-const sass = require("gulp-sass");
-const sourcemaps = require("gulp-sourcemaps");
-const browserSync = require("browser-sync").create();
-const cssnano = require("gulp-cssnano");
-const uglify = require("gulp-uglify");
-const rename = require("gulp-rename");
-const concat = require("gulp-concat");
-const imagemin = require("gulp-imagemin");
-const cache = require("gulp-cache");
+const gulp = require("gulp");//task runner
+const sass = require("gulp-sass");//convert sass to css
+const sourcemaps = require("gulp-sourcemaps");//map scss dev in css prod
+const browserSync = require("browser-sync").create();//live local server
+const cssnano = require("gulp-cssnano");//minifying css files
+const uglify = require("gulp-uglify");//minifying js files
+const rename = require("gulp-rename");//renaming files (min.js or min.css)
+const concat = require("gulp-concat");//combining js files into 1
+const imagemin = require("gulp-imagemin");// minifying images
+const cache = require("gulp-cache");//caching minified images
+const kit = require("gulp-kit"); //combining partials in html
+
+filesPath = {
+    sass: "./src/sass/**/*.scss",
+    js: "./src/js/**/*.js",
+    image: "./src/img/**/*.+(png|jpg|gif|svg)",
+    // html: "./html/**/*.kit",
+}
+
+filesDestpath = {
+    sass : "./dist/css",
+    js : "./src/js/**/*.js",
+    image: "./dist/img/",
+    // html: "./",
+}
 
 
 // Sass
@@ -16,7 +31,7 @@ const cache = require("gulp-cache");
 gulp.task("sass", function(done) {
     return (
         gulp
-            .src(["./src/sass/**/*.scss"])
+            .src([filesPath.sass])
             // .src(["./src/sass/**/*.scss", "!./src/sass/widget.scss"])
             // *.scss - all files at the end of the path
             //  **/*.scss - match all files at the end of the path plus all children files and folders
@@ -32,16 +47,17 @@ gulp.task("sass", function(done) {
                     }
                 })
             )
-            .pipe(gulp.dest("./dist/css"))
+            .pipe(gulp.dest(filesDestpath.sass))
     );
     done();
 });
+
 
 // Javascript
 
 gulp.task("javascript", function(done) {
     return gulp
-        .src("./src/js/**/*.js")
+        .src(filesPath.js)
         // .src(["./src/js/alert.js", "./src/js/project.js"])
         // .pipe(concat("project.js"))
         .pipe(uglify()) //minify javascript
@@ -50,20 +66,40 @@ gulp.task("javascript", function(done) {
             suffix: ".min"
             })
         )
-        .pipe(gulp.dest("./dist/js"));
+        .pipe(gulp.dest(filesDestpath.js));
     done();
 });
+
 
 // Images optimization
 
 gulp.task("imagemin", function(done) {
     return (
-      gulp.src("./src/img/**/*.+(png|jpg|gif|svg)")
+      gulp.src(filesPath.image)
       .pipe(cache(imagemin()))
-      .pipe(gulp.dest("./dist/img/"))
+      .pipe(gulp.dest(filesDestpath.image))
     )
     done();
 })
+
+
+//  HTML kit templating
+
+/*
+gulp.task("kit", function(done) {
+    return (
+      gulp.src(filesPath.html)
+        .pipe(plumber({errorHandler: notifier.error}))//enables whole tasks to run even with error
+        .pipe(kit())// combine partials into index.html
+        .pipe(htmlmin({
+          collapseWhitespace: true
+        }))// minify index.html file
+        .pipe(gulp.dest(filesDestpath.html))//save to destination file
+        // .pipe(notifier.success("kit"))
+    )
+    done();
+})
+*/
 
 // Watch task with BrowserSync
 
@@ -78,12 +114,17 @@ gulp.task("watch", function() {
     gulp
         .watch(
             [
-                "./src/sass/**/*.scss",
-                "**/*.html",
-                "./src/js/**/*.js",
-                "./src/img/**/*.+(png|jpg|gif|svg)"
+                filesPath.sass,
+                // filesPath.html
+                filesPath.js,
+                filesPath.images
             ], 
-            gulp.series(["sass", "javascript", "imagemin"])
+            gulp.parallel([
+                         "sass",
+                         "javascript", 
+                         "imagemin"
+                        //  "kit"
+                        ])
         )
         .on("change", browserSync.reload);
 });
