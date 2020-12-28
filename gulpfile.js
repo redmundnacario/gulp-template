@@ -10,6 +10,12 @@ const concat = require("gulp-concat");//combining js files into 1
 const imagemin = require("gulp-imagemin");// minifying images
 const cache = require("gulp-cache");//caching minified images
 const kit = require("gulp-kit"); //combining partials in html
+const htmlmin = require("gulp-htmlmin");//minify html
+const autoprefixer = require("gulp-autoprefixer");//css compatibility with diff. browsers
+const babel = require("gulp-babel");//convert all js to ES5 for compatibility with diff. browsers
+
+
+
 
 filesPath = {
     sass: "./src/sass/**/*.scss",
@@ -37,6 +43,7 @@ gulp.task("sass", function(done) {
             //  **/*.scss - match all files at the end of the path plus all children files and folders
             // !*.scss or !**/*.scss - exclude the matching expressions
             .pipe(sourcemaps.init())
+            .pipe(autoprefixer())
             .pipe(sass())
             .pipe(cssnano()) // minify css
             .pipe(sourcemaps.write("."))
@@ -60,6 +67,9 @@ gulp.task("javascript", function(done) {
         .src(filesPath.js)
         // .src(["./src/js/alert.js", "./src/js/project.js"])
         // .pipe(concat("project.js"))
+        .pipe(babel({
+            presets: ["@babel/env"]
+          }))
         .pipe(uglify()) //minify javascript
         .pipe(
             rename({
@@ -95,7 +105,7 @@ gulp.task("kit", function(done) {
           collapseWhitespace: true
         }))// minify index.html file
         .pipe(gulp.dest(filesDestpath.html))//save to destination file
-        // .pipe(notifier.success("kit"))
+        // .pipe(notifier.success("kit"))//
     )
     done();
 })
