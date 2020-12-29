@@ -13,22 +13,36 @@ const kit = require("gulp-kit"); //combining partials in html
 const htmlmin = require("gulp-htmlmin");//minify html
 const autoprefixer = require("gulp-autoprefixer");//css compatibility with diff. browsers
 const babel = require("gulp-babel");//convert all js to ES5 for compatibility with diff. browsers
+const zip = require("gulp-zip");//zipping whole project
+const del = require("del");//delete dist files
+const plumber = require("gulp-plumber");// for debugging
+const notifier = require("gulp-notifier");//notifies when tasks were done successfully
 
 
-
+notifier.defaults({
+  messages: {
+    sass: "CSS was successfully compiled!",
+    js: "Javascript is ready!",
+    // kit: "HTML was delivered!"
+  },
+//   prefix: "=====",
+//   suffix: "=====",
+//   exclusions: ".map"
+});
 
 filesPath = {
     sass: "./src/sass/**/*.scss",
     js: "./src/js/**/*.js",
     image: "./src/img/**/*.+(png|jpg|gif|svg)",
+    html: "./src/**/*.html",
     // html: "./html/**/*.kit",
 }
 
 filesDestpath = {
     sass : "./dist/css",
-    js : "./src/js/**/*.js",
+    js : "./dist/js",
     image: "./dist/img/",
-    // html: "./",
+    html: "./dist/",
 }
 
 
@@ -42,6 +56,7 @@ gulp.task("sass", function(done) {
             // *.scss - all files at the end of the path
             //  **/*.scss - match all files at the end of the path plus all children files and folders
             // !*.scss or !**/*.scss - exclude the matching expressions
+            .pipe(plumber({errorHandler: notifier.error}))
             .pipe(sourcemaps.init())
             .pipe(autoprefixer())
             .pipe(sass())
@@ -55,6 +70,7 @@ gulp.task("sass", function(done) {
                 })
             )
             .pipe(gulp.dest(filesDestpath.sass))
+            .pipe(notifier.success("sass"))
     );
     done();
 });
@@ -66,17 +82,19 @@ gulp.task("javascript", function(done) {
     return gulp
         .src(filesPath.js)
         // .src(["./src/js/alert.js", "./src/js/project.js"])
-        // .pipe(concat("project.js"))
+        .pipe(plumber({errorHandler: notifier.error}))
         .pipe(babel({
             presets: ["@babel/env"]
-          }))
+          })) // convert to ES5
+        // .pipe(concat("project.js"))
         .pipe(uglify()) //minify javascript
         .pipe(
             rename({
             suffix: ".min"
             })
         )
-        .pipe(gulp.dest(filesDestpath.js));
+        .pipe(gulp.dest(filesDestpath.js))
+        .pipe(notifier.success("js"));
     done();
 });
 
@@ -95,6 +113,15 @@ gulp.task("imagemin", function(done) {
 
 //  HTML kit templating
 
+gulp.task("html", function(done) {
+    return (
+        gulp.src(filesPath.html)
+        .pipe(plumber({errorHandler: notifier.error}))
+        .gulp.dest(filesDestpath.html)
+        .pipe(notifier.success("html"))
+    )
+    done();
+})
 /*
 gulp.task("kit", function(done) {
     return (
@@ -118,7 +145,7 @@ gulp.task("watch", function() {
         server: {
         baseDir: "./"
         },
-        browser: "firefox developer edition"
+        browser: "google chrome"
     });
 
     gulp
@@ -140,14 +167,43 @@ gulp.task("watch", function() {
 });
 
 
+
 // Clear cache
 
 gulp.task("clear-cache", function(done) {
     return cache.clearAll(done);
   });
   
-  // Gulp default command
+
+// Serve
+
+gulp.task("serve", gulp.parallel(["sass", "javascript", "imagemin"]));
+
+
+// Gulp default command
   
-gulp.task("default", gulp.series(["watch"]));
+gulp.task("default", gulp.series(["serve", "watch"]));
   
+
+
+// Zip project
+// Zipped all recursively except the node modules
+
+gulp.task("zip", function(done) {
+    return(
+      gulp.src(["./**/*", "!./node_modules/**/*"])
+      .pipe(zip("project.zip"))
+      .pipe(gulp.dest("./"))
+    )
+    done();
+  })
+
+
+
+// Clean "dist" folder
+
+gulp.task("clean-dist", function(done) {
+    return del(["./dist/**/*"]);
+      done();
+});
   
