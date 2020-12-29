@@ -1,11 +1,9 @@
 # Gulp Template
 
-**Author**
-
-Redmund Nacario
+**Author: Redmund Nacario**
 
 Developer
-
+<br>
 
 🚀 Feel Free to clone. Follow me in github and star/watch this repo for
 further updates. Thank you !!! 🚀
@@ -29,7 +27,7 @@ yarn install
 4. Edit gulp file and folder structure depending on your project.
 
 
-Suggested directory structure
+* Suggested directory structure
 ```
 ├── dist/
 │   ├── assets/
@@ -46,7 +44,6 @@ Suggested directory structure
 ├── node_modules/
 ├── gulpfile.js
 └── package.json
-
 ```
    
 5. Run gulp task in terminal (same directory).

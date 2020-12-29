@@ -33,16 +33,16 @@ notifier.defaults({
 filesPath = {
     html: "./src/**/*.html",
     sass: "./src/assets/sass/**/*.scss",
+    image: "./src/assets/img/**/*.+(png|jpg|gif|svg)",
     // js: "./src/js/**/*.js",
-    // image: "./src/img/**/*.+(png|jpg|gif|svg)",
     // html: "./html/**/*.kit",
 }
 
 filesDestpath = {
     html: "./dist",
     sass : "./dist/assets/css",
+    image: "./dist/assets/img",
     // js : ""./dist/assets/js",
-    // image: "./dist/assets/img",
 }
 
 
@@ -163,14 +163,15 @@ gulp.task("watch", function() {
             [
                 filesPath.html,
                 filesPath.sass,
+                filesPath.image
                 // filesPath.js,
-                // filesPath.images
+                
             ], 
             gulp.parallel([
                             "html",
                             "sass",
+                            "imagemin"
                         //  "javascript", 
-                        //  "imagemin"
                         //  "kit"
                         ])
         )
@@ -191,8 +192,9 @@ gulp.task("clear-cache", function(done) {
 gulp.task("serve", gulp.parallel([
                                     "html",
                                     "sass",
+                                    "imagemin"
                                     // "javascript", 
-                                    // "imagemin"
+                                    
                                 ]));
 
 
