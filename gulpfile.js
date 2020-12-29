@@ -21,8 +21,8 @@ const notifier = require("gulp-notifier");//notifies when tasks were done succes
 
 notifier.defaults({
   messages: {
-    sass: "CSS was successfully compiled!",
-    js: "Javascript is ready!",
+    // sass: "CSS was successfully compiled!",
+    // js: "Javascript is ready!",
     // kit: "HTML was delivered!"
   },
 //   prefix: "=====",
@@ -31,20 +31,39 @@ notifier.defaults({
 });
 
 filesPath = {
-    sass: "./src/sass/**/*.scss",
-    js: "./src/js/**/*.js",
-    image: "./src/img/**/*.+(png|jpg|gif|svg)",
     html: "./src/**/*.html",
+    sass: "./src/assets/sass/**/*.scss",
+    // js: "./src/js/**/*.js",
+    // image: "./src/img/**/*.+(png|jpg|gif|svg)",
     // html: "./html/**/*.kit",
 }
 
 filesDestpath = {
-    sass : "./dist/css",
-    js : "./dist/js",
-    image: "./dist/img/",
-    html: "./dist/",
+    html: "./dist",
+    sass : "./dist/assets/css",
+    // js : ""./dist/assets/js",
+    // image: "./dist/assets/img",
 }
 
+
+// HTML
+
+gulp.task("html", function(done) {
+    return (
+        gulp.src(filesPath.html)
+        .pipe(plumber({errorHandler: notifier.error}))
+        .pipe(htmlmin({
+            minifyCSS: true, // inline css,
+            minifyJS: true, // inline js, not working
+            removeComments: true,
+            // removeAttributeQuotes: true,
+            collapseWhitespace: true
+        }))
+        .pipe(gulp.dest(filesDestpath.html))
+        .pipe(notifier.success("html"))
+    )
+    done();
+})
 
 // Sass
 
@@ -58,8 +77,8 @@ gulp.task("sass", function(done) {
             // !*.scss or !**/*.scss - exclude the matching expressions
             .pipe(plumber({errorHandler: notifier.error}))
             .pipe(sourcemaps.init())
-            .pipe(autoprefixer())
             .pipe(sass())
+            .pipe(autoprefixer())
             .pipe(cssnano()) // minify css
             .pipe(sourcemaps.write("."))
             .pipe(
@@ -113,15 +132,6 @@ gulp.task("imagemin", function(done) {
 
 //  HTML kit templating
 
-gulp.task("html", function(done) {
-    return (
-        gulp.src(filesPath.html)
-        .pipe(plumber({errorHandler: notifier.error}))
-        .gulp.dest(filesDestpath.html)
-        .pipe(notifier.success("html"))
-    )
-    done();
-})
 /*
 gulp.task("kit", function(done) {
     return (
@@ -151,16 +161,16 @@ gulp.task("watch", function() {
     gulp
         .watch(
             [
-                filesPath.sass,
                 filesPath.html,
-                filesPath.js,
-                filesPath.images
+                filesPath.sass,
+                // filesPath.js,
+                // filesPath.images
             ], 
             gulp.parallel([
-                         "sass",
-                         "javascript", 
-                         "imagemin",
-                         "html"
+                            "html",
+                            "sass",
+                        //  "javascript", 
+                        //  "imagemin"
                         //  "kit"
                         ])
         )
@@ -178,7 +188,12 @@ gulp.task("clear-cache", function(done) {
 
 // Serve
 
-gulp.task("serve", gulp.parallel(["sass", "javascript", "imagemin"]));
+gulp.task("serve", gulp.parallel([
+                                    "html",
+                                    "sass",
+                                    // "javascript", 
+                                    // "imagemin"
+                                ]));
 
 
 // Gulp default command
