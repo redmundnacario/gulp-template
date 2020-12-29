@@ -27,6 +27,27 @@ yarn install
 3. Open directory with text editor.
 
 4. Edit gulp file and folder structure depending on your project.
+
+
+Suggested directory structure
+```
+├── dist/
+│   ├── assets/
+│   │   ├── css/
+│   │   ├── img/
+│   │   └── js/
+│   └── html files
+├── src/
+│   ├── assets/
+│   │   ├── css/
+│   │   ├── img/
+│   │   └── js/
+│   └── html files
+├── node_modules/
+├── gulpfile.js
+└── package.json
+
+```
    
 5. Run gulp task in terminal (same directory).
 ```
