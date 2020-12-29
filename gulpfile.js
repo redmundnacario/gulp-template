@@ -143,7 +143,7 @@ gulp.task("kit", function(done) {
 gulp.task("watch", function() {
     browserSync.init({
         server: {
-        baseDir: "./"
+        baseDir: "./dist/"
         },
         browser: "google chrome"
     });
@@ -152,14 +152,15 @@ gulp.task("watch", function() {
         .watch(
             [
                 filesPath.sass,
-                // filesPath.html
+                filesPath.html,
                 filesPath.js,
                 filesPath.images
             ], 
             gulp.parallel([
                          "sass",
                          "javascript", 
-                         "imagemin"
+                         "imagemin",
+                         "html"
                         //  "kit"
                         ])
         )
