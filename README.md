@@ -1,8 +1,11 @@
 # Gulp Template
 
-## Author
+**Author**
+
 Redmund Nacario
+
 Developer
+
 
 🚀 Feel Free to clone. Follow me in github and star/watch this repo for
 further updates. Thank you !!! 🚀
@@ -23,7 +26,7 @@ yarn install
 
 3. Open directory with text editor.
 
-4. Edit gulp file depending on your project.
+4. Edit gulp file and folder structure depending on your project.
    
 5. Run gulp task in terminal (same directory).
 ```
