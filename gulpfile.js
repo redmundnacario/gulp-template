@@ -4,9 +4,10 @@ const sass = require("gulp-sass");//convert sass to css
 const sourcemaps = require("gulp-sourcemaps");//map scss dev in css prod
 const browserSync = require("browser-sync").create();//live local server
 const cssnano = require("gulp-cssnano");//minifying css files
-const uglify = require("gulp-uglify");//minifying js files
+const terser = require("gulp-terser");// minify js files
 const rename = require("gulp-rename");//renaming files (min.js or min.css)
 const concat = require("gulp-concat");//combining js files into 1
+const stripImportExport = require('gulp-strip-import-export');// strip import and export
 const imagemin = require("gulp-imagemin");// minifying images
 const cache = require("gulp-cache");//caching minified images
 const kit = require("gulp-kit"); //combining partials in html
@@ -21,9 +22,9 @@ const notifier = require("gulp-notifier");//notifies when tasks were done succes
 
 notifier.defaults({
   messages: {
-    // sass: "CSS was successfully compiled!",
-    // js: "Javascript is ready!",
-    // kit: "HTML was delivered!"
+    sass: "CSS was successfully compiled!",
+    js: "Javascript is ready!",
+    kit: "HTML was delivered!"
   },
 //   prefix: "=====",
 //   suffix: "=====",
@@ -34,7 +35,7 @@ filesPath = {
     html: "./src/**/*.html",
     sass: "./src/assets/sass/**/*.scss",
     image: "./src/assets/img/**/*.+(png|jpg|gif|svg)",
-    // js: "./src/js/**/*.js",
+    js: "./src/assets/js/**/*.js",
     // html: "./html/**/*.kit",
 }
 
@@ -42,7 +43,7 @@ filesDestpath = {
     html: "./dist",
     sass : "./dist/assets/css",
     image: "./dist/assets/img",
-    // js : ""./dist/assets/js",
+    js : "./dist/assets/js",
 }
 
 
@@ -95,28 +96,27 @@ gulp.task("sass", function(done) {
 });
 
 
-// Javascript
+sourceJS = [<list all javascript files here>]
 
 gulp.task("javascript", function(done) {
-    return gulp
-        .src(filesPath.js)
-        // .src(["./src/js/alert.js", "./src/js/project.js"])
+    return (
+        gulp.src(sourceJS)
         .pipe(plumber({errorHandler: notifier.error}))
-        .pipe(babel({
-            presets: ["@babel/env"]
-          })) // convert to ES5
-        // .pipe(concat("project.js"))
-        .pipe(uglify()) //minify javascript
+        .pipe(sourcemaps.init())
+        .pipe(stripImportExport())
+        .pipe(concat("index.min.js"))
         .pipe(
-            rename({
-            suffix: ".min"
+            babel({
+                presets: ['@babel/preset-env']
             })
         )
+        .pipe(terser())
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(filesDestpath.js))
-        .pipe(notifier.success("js"));
+        .pipe(notifier.success("js"))
+    );
     done();
 });
-
 
 // Images optimization
 
@@ -127,7 +127,7 @@ gulp.task("imagemin", function(done) {
       .pipe(gulp.dest(filesDestpath.image))
     )
     done();
-})
+});
 
 
 //  HTML kit templating
@@ -163,17 +163,16 @@ gulp.task("watch", function() {
             [
                 filesPath.html,
                 filesPath.sass,
-                filesPath.image
-                // filesPath.js,
-                
+                filesPath.image,
+                filesPath.js,
             ], 
             gulp.parallel([
                             "html",
                             "sass",
-                            "imagemin"
-                        //  "javascript", 
-                        //  "kit"
-                        ])
+                            "imagemin",
+                            "javascript", 
+                            //  "kit"
+                            ])
         )
         .on("change", browserSync.reload);
 });
@@ -192,9 +191,8 @@ gulp.task("clear-cache", function(done) {
 gulp.task("serve", gulp.parallel([
                                     "html",
                                     "sass",
-                                    "imagemin"
-                                    // "javascript", 
-                                    
+                                    "imagemin",
+                                    "javascript", 
                                 ]));
 
 
